@@ -63,10 +63,10 @@ public class ClientReceiver extends Thread {
 							String move = server.readLine();
 							String splitMove[] = move.split(":");
 							if (move != null) {
-								if (splitMove[0].equals("move") && splitInput[1].equals(splitMove[1])) {
+								if (splitMove[0].equals("move") && splitInput[1].equals(splitMove[2])) {
 									System.out.println(move);
 								}
-								else if (splitMove[0].equals("end")) {
+								else if (splitMove[0].equals("endGame") && splitInput[1].equals(splitMove[1])) {
 									System.out.println("No longer in game with " + splitInput[1]);
 									inGame = false;
 								}
@@ -75,6 +75,9 @@ public class ClientReceiver extends Thread {
 					}
 					else if (splitInput[0].equals("decline")) {
 						System.out.println(splitInput[1] + " declined your challenge.");
+					}
+					else if (splitInput[0].equals("message")) {
+						System.out.println(splitInput[1]);
 					}
 				}
 				else {
@@ -105,6 +108,10 @@ public class ClientReceiver extends Thread {
 	
 	public String getChallenger() {
 		return challenger;
+	}
+	
+	public boolean inGame() {
+		return inGame;
 	}
 	
 }

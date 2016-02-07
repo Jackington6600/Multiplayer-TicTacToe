@@ -39,20 +39,20 @@ public class ClientSender extends Thread {
 						receiver.setChallenged(false);
 					}
 					else if (input.equals("n")) {
-						server.println("decline" + receiver.getChallenger());
+						server.println("decline:" + receiver.getChallenger());
 						receiver.setChallenged(false);
 					}
 				}
-				else if (splitInput[0].equals("challenge")){
+				else if (splitInput[0].equals("challenge") && !receiver.inGame()){
 					server.println(input);
 				}
-				else if (splitInput[0].equals("refresh")){
+				else if (splitInput[0].equals("refresh") && !receiver.inGame()){
 					server.println(input);
 				}
-				else if (splitInput[0].equals("move")) {
+				else if (splitInput[0].equals("move") && receiver.inGame()) {
 					server.println(input);
 				}
-				else if (splitInput[0].equals("end")) {
+				else if (splitInput[0].equals("end") && receiver.inGame()) {
 					server.println(input);
 				}
 				else {

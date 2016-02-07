@@ -15,6 +15,7 @@ public class Server {
 
 		// This will be shared by the server threads:
 		ClientTable clientTable = new ClientTable();
+		GameTable gameTable = new GameTable();
 
 		// Open a server socket:
 		ServerSocket serverSocket = null;
@@ -40,19 +41,29 @@ public class Server {
 
 				// We ask the client what its name is:
 				String clientName = fromClient.readLine();
-
-				// For debugging:
-				System.out.println(clientName + " connected");
-
-				// We add the client to the table:
-				clientTable.add(clientName);
-
-				// We create and start a new thread to read from the client:
-				(new ServerReceiver(clientName, fromClient, clientTable)).start();
-
-				// We create and start a new thread to write to the client:
-				PrintStream toClient = new PrintStream(socket.getOutputStream());
-				(new ServerSender(clientTable.getQueue(clientName), toClient)).start();
+				
+				if (!clientTable.nickAlreadyInUse(clientName))
+				{
+					// For debugging:
+					System.out.println(clientName + " connected");
+	
+					// We add the client to the table:
+					clientTable.add(clientName);
+					gameTable.add(clientName);
+	
+					// We create and start a new thread to read from the client:
+					(new ServerReceiver(clientName, fromClient, clientTable, gameTable)).start();
+	
+					// We create and start a new thread to write to the client:
+					PrintStream toClient = new PrintStream(socket.getOutputStream());
+					(new ServerSender(clientTable.getQueue(clientName), toClient)).start();
+				}
+				else
+				{
+					System.out.println("Error: Nickname " + clientName + " is already in use.");
+					socket.close();
+					fromClient.close();
+				}
 			}
 		} catch (IOException e) {
 			// Lazy approach:

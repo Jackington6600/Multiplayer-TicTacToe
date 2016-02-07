@@ -31,5 +31,12 @@ public class ClientTable {
 	  }
 	  return output;
   }
+	
+	public boolean nickAlreadyInUse(String nickname) {
+		if (queueTable.containsKey(nickname))
+			return true;
+		else
+			return false;
+	}
 
 }
