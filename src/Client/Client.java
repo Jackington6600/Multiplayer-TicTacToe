@@ -67,18 +67,7 @@ class Client {
     sender.start();
     receiver.start();
     
-  	//GUI
-  	NoughtsCrosses game = new NoughtsCrosses();
   	
-  	NoughtsCrossesComponent comp = new NoughtsCrossesComponent(nickname,sender,receiver);
-  	
-  	JFrame frame = new JFrame("Noughts and Crosses");
-  	frame.setSize(400, 400);
-  	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-  	
-  	frame.add(comp);
-  	
-  	//frame.setVisible(true);
     
     // Wait for them to end and close sockets.
     try {

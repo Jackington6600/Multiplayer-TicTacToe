@@ -50,7 +50,20 @@ public class ClientSender extends Thread {
 					server.println(input);
 				}
 				else if (splitInput[0].equals("move") && receiver.inGame()) {
-					server.println(input);
+					//Split into several if statements to allow for specific error messages.
+					if (receiver.isTurn()) {
+						int i = Integer.parseInt(splitInput[2]);
+						int j = Integer.parseInt(splitInput[3]);
+						if (i < 3 && i >= 0 && j < 3 && j >= 0 && receiver.isValidMove(i,j)) {
+								server.println(input);
+						}
+						else {
+							System.out.println("This is not a valid move.");
+						}
+					}
+					else {
+						System.out.println("It is not your turn.");
+					}
 				}
 				else if (splitInput[0].equals("end") && receiver.inGame()) {
 					server.println(input);

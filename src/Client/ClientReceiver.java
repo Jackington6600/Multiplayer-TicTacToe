@@ -3,6 +3,11 @@ package Client;
 import java.io.*;
 import java.net.*;
 
+import javax.swing.JFrame;
+
+import Game.NoughtsCrosses;
+import Game.NoughtsCrossesComponent;
+import Game.NoughtsCrossesModel;
 import Server.Command;
 import Server.CommandQueue;
 
@@ -15,7 +20,10 @@ public class ClientReceiver extends Thread {
 	private String players;
 	private boolean challenged;
 	private boolean inGame;
+	private boolean isTurn;
 	private String challenger;
+	private NoughtsCrosses game;
+	private NoughtsCrossesModel gameModel;
 
 	ClientReceiver(BufferedReader server) {
 		this.server = server;
@@ -58,13 +66,73 @@ public class ClientReceiver extends Thread {
 						inGame = true;
 						System.out.println("Now in game with " + splitInput[1]);
 						
+						game = new NoughtsCrosses();
+						gameModel = new NoughtsCrossesModel(game);
+						//to ensure a new game is created
+						gameModel.newGame();
+						
+						if (splitInput[2].equals("true")) {
+							isTurn = true;
+							System.out.println("It is your turn.");
+						}
+						else {
+							isTurn = false;
+							System.out.println("It is not your turn.");
+						}
+						
+						for (int i = 0; i < 3; i++) {
+							System.out.print(gameModel.getString(i, 0));
+							System.out.print(gameModel.getString(i, 1));
+							System.out.print(gameModel.getString(i, 2));
+							System.out.println("");
+						}
+						
+						System.out.println("");
+						
 						while(inGame) {
 							
 							String move = server.readLine();
 							String splitMove[] = move.split(":");
 							if (move != null) {
+								//If the move is from the opponent
 								if (splitMove[0].equals("move") && splitInput[1].equals(splitMove[2])) {
 									System.out.println(move);
+									gameModel.turn(Integer.parseInt(splitMove[3]), Integer.parseInt(splitMove[4]));
+									if (gameModel.whoWon() == 1) {
+										System.out.println(splitMove[2] + " (Crosses) wins the game!");
+										gameModel.newGame();
+									}
+									else if (gameModel.whoWon() == 2) {
+										System.out.println(splitMove[2] + " (Noughts) wins the game!");
+										gameModel.newGame();
+									}
+									for (int i = 0; i < 3; i++) {
+										System.out.print(gameModel.getString(i, 0));
+										System.out.print(gameModel.getString(i, 1));
+										System.out.print(gameModel.getString(i, 2));
+										System.out.println("");
+									}
+									isTurn = true;
+								}
+								//If the move is from yourself
+								else if (splitMove[0].equals("move") && splitInput[3].equals(splitMove[2])) {
+									System.out.println(move);
+									gameModel.turn(Integer.parseInt(splitMove[3]), Integer.parseInt(splitMove[4]));
+									if (gameModel.whoWon() == 1) {
+										System.out.println(splitMove[2] + " (Crosses) wins the game!");
+										gameModel.newGame();
+									}
+									else if (gameModel.whoWon() == 2) {
+										System.out.println(splitMove[2] + " (Noughts) wins the game!");
+										gameModel.newGame();
+									}
+									for (int i = 0; i < 3; i++) {
+										System.out.print(gameModel.getString(i, 0));
+										System.out.print(gameModel.getString(i, 1));
+										System.out.print(gameModel.getString(i, 2));
+										System.out.println("");
+									}
+									isTurn = false;
 								}
 								else if (splitMove[0].equals("endGame") && splitInput[1].equals(splitMove[1])) {
 									System.out.println("No longer in game with " + splitInput[1]);
@@ -112,6 +180,19 @@ public class ClientReceiver extends Thread {
 	
 	public boolean inGame() {
 		return inGame;
+	}
+	
+	public boolean isTurn() {
+		return isTurn;
+	}
+	
+	public boolean isValidMove(int i, int j) {
+		if (gameModel.get(i, j) == 0) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	
 }

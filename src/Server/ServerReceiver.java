@@ -86,8 +86,8 @@ public class ServerReceiver extends Thread {
 					{
 						CommandQueue recipientsQueue = clientTable.getQueue(myClientsName);
 						CommandQueue challengersQueue = clientTable.getQueue(splitInput[1]);
-						Command gameRecipient = new Command("startGame:" + splitInput[1]);
-						Command gameChallenger = new Command("startGame:" + myClientsName);
+						Command gameRecipient = new Command("startGame:" + splitInput[1] + ":false:" + myClientsName);
+						Command gameChallenger = new Command("startGame:" + myClientsName + ":true:" + splitInput[1]);
 						if (recipientsQueue != null && challengersQueue != null)
 						{
 							recipientsQueue.offer(gameRecipient);
@@ -130,11 +130,13 @@ public class ServerReceiver extends Thread {
 				
 				else if (splitInput[0].equals("move")) {
 					
-					Command move = new Command(splitInput[0] + splitInput[1] + myClientsName + splitInput[2] + splitInput[3]);
+					Command move = new Command(splitInput[0] + ":" + splitInput[1] + ":" + myClientsName + ":" + splitInput[2] + ":" + splitInput[3]);
 					CommandQueue recipientsQueue = clientTable.getQueue(splitInput[1]);
+					CommandQueue moveMakerQueue = clientTable.getQueue(myClientsName);
 					if (!myClientsName.equals(splitInput[1])) {
 						if (recipientsQueue != null) {
 							recipientsQueue.offer(move);
+							moveMakerQueue.offer(move);
 						}
 						else
 							System.err.println("Unable to send move to user: " + splitInput[1]);

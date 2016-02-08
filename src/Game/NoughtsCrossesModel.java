@@ -21,6 +21,10 @@ Get symbol at given location
 	{
 		return oxo.get(i, j);
 	}
+	
+	public String getString(int i, int j) {
+		return oxo.getString(i, j);
+	}
 
 
 /**

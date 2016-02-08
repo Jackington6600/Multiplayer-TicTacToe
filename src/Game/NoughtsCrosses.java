@@ -35,6 +35,18 @@ Get symbol at given location
 	{
 		return board[i][j];
 	}
+	
+	public String getString(int i, int j) {
+		if (board[i][j] == 1) {
+			return "X";
+		}
+		else if (board[i][j] == 2) {
+			return "O";
+		}
+		else {
+			return "-";
+		}
+	}
 
 
 /**
