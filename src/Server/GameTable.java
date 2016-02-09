@@ -1,32 +1,50 @@
 package Server;
-// Each nickname has a different incomming-message queue.
 
-import java.util.Set;
 import java.util.concurrent.*;
+
+/**
+ * GameTable stores a ConcurrentHashMap of all current players alongside a boolean
+ * The boolean states whether or not the user is currently in a game
+ * @author Jack Morrison
+ */
 
 public class GameTable {
 
 	private ConcurrentMap<String, Boolean> gameTable = new ConcurrentHashMap<String, Boolean>();
 
-	// The following overrides any previously existing nickname, and
-	// hence the last client to use this nickname will get the messages
-	// for that nickname, and the previously exisiting clients with that
-	// nickname won't be able to get messages. Obviously, this is not a
-	// good design of a messaging system. So I don't get full marks:
 
+	/**
+	 * Adds a given user (nickname) to the GameTable
+	 * @param nickname The user
+	 */
 	public void add(String nickname) {
 		gameTable.put(nickname, false);
 	}
 
-	// Returns null if the nickname is not in the table:
+	/**
+	 * Returns true if the given user (nickname) is in a game currently
+	 * @param nickname The user
+	 * @return boolean Is the user in a game
+	 */
 	public boolean inGame(String nickname) {
 		return gameTable.get(nickname);
 	}
-	
+
+	/**
+	 * Sets whether a user is in a game or not
+	 * @param nickname The user
+	 * @param b boolean Is the user in a game currently?
+	 */
 	public void setInGame(String nickname, boolean b) {
 		gameTable.replace(nickname, gameTable.get(nickname), b);
 	}
 
-	
+	/**
+	 * Removes the given user from the GameTable
+	 * @param nickname The user
+	 */
+	public void remove(String nickname) {
+		gameTable.remove(nickname);
+	}
 
 }

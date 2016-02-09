@@ -1,75 +1,77 @@
 package Server;
-// Usage:
-
-//        java Server
-//
-// There is no provision for ending the server gracefully.  It will
-// end if (and only if) something exceptional happens.
 
 import java.net.*;
 import java.io.*;
 
+/**
+ * The Server that initialises a ServerReceiver and a ServerSender for each user that joins the server
+ * Opens a socket on the given port
+ * Adds them to the GameTable and the ClientTable
+ * @author Jack Morrison
+ */
+
 public class Server {
 
 	public static void main(String[] args) {
-
-		// This will be shared by the server threads:
-		ClientTable clientTable = new ClientTable();
-		GameTable gameTable = new GameTable();
-
-		// Open a server socket:
-		ServerSocket serverSocket = null;
-
-		// We must try because it may fail with a checked exception:
-		try {
-			serverSocket = new ServerSocket(Port.number);
-		} catch (IOException e) {
-			System.err.println("Couldn't listen on port " + Port.number);
+		
+		if (args.length != 1) {
+			System.err.println("Usage: java Server port");
 			System.exit(1); // Give up.
 		}
 
-		// Good. We succeeded. But we must try again for the same reason:
+		// Initialize information:
+		int portNumber = Integer.parseInt(args[0]);
+
+		// Initialises a ClientTable and a GameTable
+		ClientTable clientTable = new ClientTable();
+		GameTable gameTable = new GameTable();
+
+		// Opens a server socket
+		ServerSocket serverSocket = null;
+
+		// Try to open the server socket on the given port
 		try {
-			// We loop for ever, as servers usually do:
+			serverSocket = new ServerSocket(portNumber);
+		} catch (IOException e) {
+			System.err.println("Couldn't listen on port " + portNumber);
+			System.exit(1); // Give up.
+		}
+
+		try {
+			// Server loops forever
 
 			while (true) {
-				// Listen to the socket, accepting connections from new clients:
+				// Listens to the socket, accepting connections from new clients
 				Socket socket = serverSocket.accept();
 
-				// This is so that we can use readLine():
+				// This is so that readLine() can be used
 				BufferedReader fromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-				// We ask the client what its name is:
+				// Client gives a username/nickname to the server and the server reads it
 				String clientName = fromClient.readLine();
-				
-				if (!clientTable.nickAlreadyInUse(clientName))
-				{
-					// For debugging:
+
+				if (!clientTable.nickAlreadyInUse(clientName)) {
+					// For debugging
 					System.out.println(clientName + " connected");
-	
-					// We add the client to the table:
+
+					// Client is added to the CLientTable and the GameTable
 					clientTable.add(clientName);
 					gameTable.add(clientName);
-	
-					// We create and start a new thread to read from the client:
+
+					// Creates and starts a ServerReceiver thread
 					(new ServerReceiver(clientName, fromClient, clientTable, gameTable)).start();
-	
-					// We create and start a new thread to write to the client:
+
+					// Creates a printstream and creates and starts a ServerSender thread
 					PrintStream toClient = new PrintStream(socket.getOutputStream());
 					(new ServerSender(clientTable.getQueue(clientName), toClient)).start();
-				}
-				else
-				{
+				} else {
 					System.out.println("Error: Nickname " + clientName + " is already in use.");
 					socket.close();
 					fromClient.close();
 				}
 			}
 		} catch (IOException e) {
-			// Lazy approach:
 			System.err.println("IO error " + e.getMessage());
-			// A more sophisticated approach could try to establish a new
-			// connection. But this is beyond this simple exercise.
 		}
 	}
 }
